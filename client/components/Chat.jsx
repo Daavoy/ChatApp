@@ -46,7 +46,7 @@ function Chat({ socket, userName, room }) {
                 })}
             </div>
             <div className="chat-footer">
-                <input type="text" onChange={handleChange} />
+                <input type="text" onChange={handleChange} onKeyDown={(event) => event.key === "Enter" && sendMessage()} />
                 <button onClick={sendMessage}>&#9658;</button>
             </div>
         </div>
