@@ -4,11 +4,14 @@ import "../styles/Chat.css"
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSocket } from "../context/SocketContext";
+import FileUploader from "./FileUploader";
 const Chat = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const socket = useSocket();
+    const [showFileUploader, setShowFileUploader] = useState(false);
     const [currentMessage, setCurrentMessage] = useState("");
+    const [command, setCommand] = useState("");
     const [messageList, setMessageList] = useState([]);
     const { userName } = location.state || {}; // Access the state passed from Home
 
@@ -16,6 +19,11 @@ const Chat = () => {
     const sendMessage = async () => {
         if (currentMessage === "") {
             return;
+        }
+        if (currentMessage === "/addfile") {
+            console.log("hello")
+            setCommand(currentMessage);
+            setShowFileUploader(true);
         }
 
         const messageData = {
@@ -40,7 +48,10 @@ const Chat = () => {
     const handleChange = (e) => {
         setCurrentMessage(e.target.value);
     }
-
+    const handleReset = () => {
+        setCommand("");
+        setShowFileUploader(false);
+    }
     return (
         <div>
             <div className="chat-header">
@@ -54,6 +65,7 @@ const Chat = () => {
                         </div>
                     );
                 })}
+                {showFileUploader && <FileUploader currentMessage={command} handleReset={handleReset} />}
             </div>
             <div className="chat-footer">
                 <input type="text" onChange={handleChange} onKeyDown={(event) => event.key === "Enter" && sendMessage()} value={currentMessage} />
