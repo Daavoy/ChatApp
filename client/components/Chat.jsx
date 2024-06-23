@@ -56,21 +56,34 @@ const Chat = () => {
             console.error("Error when deleting channel", error);
         }
     }
+    const executeCommands = (command) => {
+        if (command.includes("/createchannel")) {
+            createChannel();
+            return;
+        }
+        if (command.includes("/deletechannel")) {
+            deleteChannel();
+            return;
+        }
+        if (command === "/addfile") {
+            console.log("file added")
+            setCommand(currentMessage);
+            setShowFileUploader(true);
+            return;
+        }
+        {
+            console.log("No command");
+            return;
+        }
+    }
 
     const sendMessage = async () => {
-        const currentMessageLower = currentMessage.toLowerCase();
         if (currentMessage === "") {
             return;
         }
-        if (currentMessageLower.includes("/createchannel")) {
-            createChannel();
-        }
-        if (currentMessageLower.includes("/deletechannel")) {
-            deleteChannel();
-        }
-        if (currentMessage === "/addfile") {
-            setCommand(currentMessage);
-            setShowFileUploader(true);
+        const command = currentMessage.toLowerCase();
+        if (command[0] === '/') {
+            executeCommands(command);
         }
 
         const messageData = {
@@ -78,6 +91,7 @@ const Chat = () => {
             message: currentMessage,
             time: new Date(Date.now()).getHours() + ":" + new Date(Date.now()).getMinutes(),
         }
+
         setMessageList((prevList) => [...prevList, messageData]);
         setCurrentMessage("");
         await socket.emit("send_message", messageData);
