@@ -16,9 +16,7 @@ const FileUploader = ({ currentMessage, handleReset }) => {
         window.openFileInput = openFileInput
         const handleKeyDown = (event) => {
             console.log(event.key)
-            console.log("current message: ", currentMessage)
             if (event.key === "Enter" && currentMessage === "/addfile") {
-                console.log('Enter key pressed and currentMessage is /addfile'); // Debug log
                 openFileInput();
                 handleReset();
             }
