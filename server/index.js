@@ -1,15 +1,49 @@
 import express from 'express';
+import path from "path";
+import dotenv from "dotenv";
 import { Server } from 'socket.io'; // Import the named export 'Server' from 'socket.io'
 import { createServer } from 'http';
-
-const PORT = process.env.PORT || 5000;
+import { fileURLToPath } from 'url';
+import { MongoClient, ServerApiVersion } from 'mongodb';
+import { CLIENT_RENEG_WINDOW } from 'tls';
 
 const app = express();
 const server = createServer(app);
 
-app.post('/users', (req, res) => {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const envPath = path.resolve(__dirname, "../.env");
+dotenv.config({ path: envPath });
+
+
+const mongoURI = process.env.MONGO_URI;
+const PORT = process.env.PORT || 5000;
+
+
+
+
+const client = new MongoClient(mongoURI, {
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+    }
+});
+
+
+
+const db = client.db("chatapplication");
+const users = db.collection("users");
+
+
+
+app.post('/users', async (req, res) => {
     const { userName } = req.body
+
+
 })
+
+
 
 
 const io = new Server(server, {
@@ -24,9 +58,16 @@ io.on('connection', (socket) => {
     console.log('client connected:', socket.id);
     socket.join('main-room');
 
-    socket.on("join_room", (data) => {
+    socket.on("join_room", async (data) => {
         socket.join(data);
         console.log(`User with ID: ${socket.id} joined ${data}`);
+        try {
+            const doc = { username: data, messages: [] };
+            const results = await users.insertOne(doc)
+            console.log(`user with _id ${results.insertedId} added to collection`)
+        } catch (err) {
+            console.error("error storing user", err)
+        }
     });
     socket.on("send_message", (data) => {
         console.log("DATA:", data)
@@ -35,6 +76,8 @@ io.on('connection', (socket) => {
     });
     socket.on('disconnect', (reason) => {
         console.log(reason);
+        console.log("closing mongodb connection");
+        client.close();
     });
 });
 
@@ -47,4 +90,8 @@ server.listen(PORT, err => {
         console.error(err);
     }
     console.log('Server running on port:', PORT);
+    console.log("connecting to mongodb");
+    client.connect();
 });
+
+
