@@ -71,10 +71,8 @@ const Chat = () => {
             setShowFileUploader(true);
             return;
         }
-        {
-            console.log("No command");
-            return;
-        }
+
+        console.log("No command");
     }
 
     const sendMessage = async () => {
@@ -106,6 +104,7 @@ const Chat = () => {
             })
         }
     }, [socket]);
+
     const handleChange = (e) => {
         setCurrentMessage(e.target.value);
     }
