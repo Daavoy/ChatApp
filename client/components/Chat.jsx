@@ -48,6 +48,26 @@ const Chat = () => {
         }
     };
 
+    const helpCommand = async () => {
+        console.log("hello from help")
+        try {
+            const response = await fetch("http://localhost:5000/commands");
+            console.log(response)
+            if (!response.ok) {
+                //TODO ADD AN ERROR-MESSAGE TO DISPLAY TO USER IN CHAT
+                throw new Error("Failed to fetch commands");
+            }
+            const data = await response.json();
+            data.commands.map((d) => {
+                console.log(d);
+            })
+            // setCurrentMessage(data);
+            // await sendMessage();
+        } catch (err) {
+            console.error("Error executing command", err);
+        }
+    }
+
     const deleteChannel = () => {
         try {
             const currentMessageArguments = currentMessage.split(" ");
@@ -75,7 +95,13 @@ const Chat = () => {
             console.error("Error when deleting channel", error);
         }
     }
-    const executeCommands = (command) => {
+    const executeCommands = async (command) => {
+        console.log("command", command);
+        if (command === "-h") {
+            await helpCommand();
+            return;
+        }
+
         if (command.includes("/createchannel")) {
             createChannel();
             return;
@@ -99,7 +125,7 @@ const Chat = () => {
             return;
         }
         const command = currentMessage.toLowerCase();
-        if (command[0] === '/') {
+        if (command[0] === '/' || command[0] === "-") {
             executeCommands(command);
         }
 
