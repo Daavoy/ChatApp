@@ -51,20 +51,26 @@ const Chat = () => {
     const deleteChannel = () => {
         try {
             const currentMessageArguments = currentMessage.split(" ");
-            if (currentMessageArguments[0].toLowerCase() !== "/deletechannel") {
-                console.log("Invalid command");
-                return;
-            }
             if (currentMessageArguments.length < 2) {
                 console.log("Must contain at least one argument");
                 return;
             }
-            if (!availableChannels.includes(currentMessageArguments[1])) {
-                console.log("No channels matching the argmuent", currentMessageArguments[1])
+            const channelName = currentMessageArguments[1];
+            if (currentMessageArguments[0].toLowerCase() !== "/deletechannel") {
+                console.log("Invalid command");
                 return;
             }
-            const updatedChannels = availableChannels.filter((channel) => channel !== currentMessageArguments[1]);
-            setAvailableChannels(updatedChannels);
+
+
+            socket.emit("delete_channel", channelName, (response) => {
+                if (response.success) {
+                    const updatedChannels = availableChannels.filter((channel) => channel !== channelName);
+                    setAvailableChannels(updatedChannels);
+                    console.log(`Successfully deleted channel ${channelName}`);
+                } else {
+                    console.error(`Error deleting channel ${response.message}`);
+                }
+            });
         } catch (error) {
             console.error("Error when deleting channel", error);
         }

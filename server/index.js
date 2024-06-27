@@ -97,6 +97,28 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('delete_channel', async (data, callback) => {
+        try {
+            const existingChannel = await channels.findOne({ channelName: data });
+            if (!existingChannel) {
+                callback({ success: false, message: `Error when deleting ${data}` });
+                return;
+            }
+            const result = await channels.deleteOne({ channelName: data });
+            if (result.deletedCount === 1) {
+                callback({ success: true, message: `Channel ${data} successfully deleted` });
+                return;
+            }
+
+            callback({ success: false, message: `Error when deleting ${data}` });
+
+        } catch (err) {
+            console.error("Error when deleting channel", err);
+            callback({ success: false, message: `Error when deleting ${data}` });
+        }
+
+    });
+
 
     socket.on("send_message", (data) => {
         console.log("DATA:", data)
