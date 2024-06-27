@@ -18,23 +18,36 @@ const Chat = () => {
 
 
     const createChannel = () => {
-        //TODO: Add Channels to database
         try {
             if (!currentMessage.toLocaleLowerCase().includes("/createchannel")) {
-                console.log("Invalid command", currentMessage)
+                console.log("Invalid command", currentMessage);
                 return;
             }
             const currentMessageArguments = currentMessage.split(" ");
             if (currentMessageArguments.length < 2) {
-                console.log("Command must contain at least one argument")
+                console.log("Command must contain at least one argument");
                 return;
             }
-            setAvailableChannels((prev) => [...prev, currentMessageArguments[1]]);
+            const channelName = currentMessageArguments[1];
 
+            // Ensure the socket is connected before emitting the event
+            if (socket && socket.connected) {
+                socket.emit("create_channel", channelName, (response) => {
+                    if (response.success) {
+                        setAvailableChannels((prev) => [...prev, channelName]);
+                        console.log(`Channel ${channelName} successfully created`);
+                    } else {
+                        console.error(`Error: ${response.message}`);
+                    }
+                });
+            } else {
+                console.error("Socket is not connected");
+            }
         } catch (error) {
             console.error("Error when creating new channels", error);
         }
-    }
+    };
+
     const deleteChannel = () => {
         try {
             const currentMessageArguments = currentMessage.split(" ");

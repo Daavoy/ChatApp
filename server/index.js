@@ -34,6 +34,7 @@ const client = new MongoClient(mongoURI, {
 
 const db = client.db("chatapplication");
 const users = db.collection("users");
+const channels = db.collection("channels");
 
 
 
@@ -62,6 +63,7 @@ io.on('connection', (socket) => {
 
         try {
             const existingUser = await users.findOne({ username: data });
+
             if (existingUser) {
                 callback({ success: false, message: "User already exists" });
                 return;
@@ -71,13 +73,31 @@ io.on('connection', (socket) => {
             const results = await users.insertOne(doc)
             socket.join(data);
             console.log(`User with ID: ${socket.id} joined ${data}`);
-            console.log(`user with _id ${results.insertedId} added to collection`)
+            console.log(`user with ID: ${results.insertedId} added to collection`)
             callback({ success: true, message: "User joined successfully" });
         } catch (err) {
             console.error("error storing user", err)
             callback({ success: false, message: "Server error" });
         }
     });
+
+    socket.on('create_channel', async (data, callback) => {
+        try {
+            const existingChannel = await channels.findOne({ channelName: data });
+            if (existingChannel) {
+                callback({ success: false, message: "Channel already exists" });
+                return;
+            }
+
+            await channels.insertOne({ channelName: data });
+            //Consider if the user should automatically change to the channel?
+            callback({ success: true, message: `Channel ${data} created successfully` });
+        } catch (err) {
+            console.log("error creating new channel", err);
+        }
+    });
+
+
     socket.on("send_message", (data) => {
         console.log("DATA:", data)
         console.log(data)
