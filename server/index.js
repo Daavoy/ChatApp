@@ -58,15 +58,24 @@ io.on('connection', (socket) => {
     console.log('client connected:', socket.id);
     socket.join('main-room');
 
-    socket.on("join_room", async (data) => {
-        socket.join(data);
-        console.log(`User with ID: ${socket.id} joined ${data}`);
+    socket.on("join_room", async (data, callback) => {
+
         try {
+            const existingUser = await users.findOne({ username: data });
+            if (existingUser) {
+                callback({ success: false, message: "User already exists" });
+                return;
+            }
+
             const doc = { username: data, messages: [] };
             const results = await users.insertOne(doc)
+            socket.join(data);
+            console.log(`User with ID: ${socket.id} joined ${data}`);
             console.log(`user with _id ${results.insertedId} added to collection`)
+            callback({ success: true, message: "User joined successfully" });
         } catch (err) {
             console.error("error storing user", err)
+            callback({ success: false, message: "Server error" });
         }
     });
     socket.on("send_message", (data) => {

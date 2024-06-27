@@ -28,8 +28,13 @@ const Home = () => {
             return;
         }
         if (userName !== "" && socket && socket.connected) {
-            socket.emit("join_room", userName); // Directly use socket.emit(), no need for socket.current
-            navigate("/chat", { state: { userName } });
+            socket.emit("join_room", userName, (response) => {
+                if (response.success) {
+                    navigate("/chat", { state: { userName } });
+                } else {
+                    alert(response.message);
+                }
+            });
         }
 
     }
