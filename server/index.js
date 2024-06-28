@@ -144,6 +144,8 @@ function configureApp() {
 
         socket.on("send_message", (data) => {
             console.log("Message received:", data);
+
+
             socket.to("main-room").emit("receive_message", data);
         });
 

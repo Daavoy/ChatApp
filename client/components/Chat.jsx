@@ -17,7 +17,10 @@ const Chat = () => {
     const [messageList, setMessageList] = useState([]);
     const { userName } = location.state || {}; // Access the state passed from Home
 
-
+    /**
+     * Will create a channel with the specified name if the command is valid, and there doesn't already exist a channel with the same name.
+     * @returns {void}
+     */
     const createChannel = () => {
         try {
             if (!currentMessage.toLocaleLowerCase().includes("/createchannel")) {
@@ -48,7 +51,10 @@ const Chat = () => {
             console.error("Error when creating new channels", error);
         }
     };
-
+    /**
+     * This method fetches all available commands from the backend and renders the results.
+     * @returns {void}
+     */
     const helpCommand = async () => {
         try {
             const response = await fetch("http://localhost:5000/commands");
@@ -68,7 +74,10 @@ const Chat = () => {
             console.error("Error executing command", err);
         }
     }
-
+    /**
+     * Will delete the channel specified by the currentmessage if the command is legal, and there exists an channel with the specified name.
+     * @returns {void}
+     */
     const deleteChannel = () => {
         try {
             const currentMessageArguments = currentMessage.split(" ");
@@ -96,6 +105,11 @@ const Chat = () => {
             console.error("Error when deleting channel", error);
         }
     }
+    /**
+     * This method executes the input command. If there is no matching command, it does nothing.
+     * @param {string} command  
+     * @returns {void}
+     */
     const executeCommands = async (command) => {
         console.log("command", command);
         if (command === "-h") {
@@ -121,7 +135,10 @@ const Chat = () => {
         console.log("No command");
 
     }
-
+    /**
+     * Will send a message by using a socket. If the message is a command, it will display the results to the current user only.
+     * @returns {void}
+     */
     const sendMessage = async () => {
         //TODO: THIS IS A TEMPORARY FIX, FIND OUT A BETTER WAY TO REMOVE THE -h RESULTS
         setHelpMessage("");

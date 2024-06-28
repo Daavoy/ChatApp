@@ -9,6 +9,8 @@ const Home = () => {
     const [connectionMessage, setConnectionMessage] = useState("fetching...");
     const socket = useSocket();
     const { errorMessage } = location.state || {};
+
+
     useEffect(() => {
         if (socket && socket.connected) {
             setConnectionMessage("Connected to server.");
