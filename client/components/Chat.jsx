@@ -13,6 +13,7 @@ const Chat = () => {
     const [showFileUploader, setShowFileUploader] = useState(false);
     const [currentMessage, setCurrentMessage] = useState("");
     const [command, setCommand] = useState("");
+    const [helpMessage, setHelpMessage] = useState("");
     const [messageList, setMessageList] = useState([]);
     const { userName } = location.state || {}; // Access the state passed from Home
 
@@ -49,18 +50,18 @@ const Chat = () => {
     };
 
     const helpCommand = async () => {
-        console.log("hello from help")
         try {
             const response = await fetch("http://localhost:5000/commands");
-            console.log(response)
             if (!response.ok) {
                 //TODO ADD AN ERROR-MESSAGE TO DISPLAY TO USER IN CHAT
                 throw new Error("Failed to fetch commands");
             }
             const data = await response.json();
-            data.commands.map((d) => {
-                console.log(d);
-            })
+            console.log(data.commands);
+            const fetchedCommands = data.commands.map((doc) => {
+                return `${doc.commandName} \t ${doc.description}\n`
+            });
+            setHelpMessage(fetchedCommands);
             // setCurrentMessage(data);
             // await sendMessage();
         } catch (err) {
@@ -118,15 +119,20 @@ const Chat = () => {
         }
 
         console.log("No command");
+
     }
 
     const sendMessage = async () => {
+        //TODO: THIS IS A TEMPORARY FIX, FIND OUT A BETTER WAY TO REMOVE THE -h RESULTS
+        setHelpMessage("");
         if (currentMessage === "") {
             return;
         }
         const command = currentMessage.toLowerCase();
         if (command[0] === '/' || command[0] === "-") {
             executeCommands(command);
+            handleReset();
+            return;
         }
 
         const messageData = {
@@ -155,6 +161,7 @@ const Chat = () => {
     }
     const handleReset = () => {
         setCommand("");
+        setCurrentMessage("");
         setShowFileUploader(false);
     }
     return (
@@ -170,6 +177,11 @@ const Chat = () => {
                         </div>
                     );
                 })}
+                {helpMessage && helpMessage.map((message, idx) => {
+                    return <p key={idx}>{message}</p>
+                })}
+
+
                 {showFileUploader && <FileUploader currentMessage={command} handleReset={handleReset} />}
             </div>
             <div className="chat-footer">
