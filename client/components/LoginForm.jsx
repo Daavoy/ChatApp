@@ -19,7 +19,8 @@ export const LoginForm = ({ onFormSubmit }) => {
     return (
         <div>
             <form onSubmit={onSubmit} ref={formRef}>
-                <label htmlFor="userName">Enter a username: </label><input type="text" id="userName" placeholder="Enter a username" onChange={onChange} />
+                <label htmlFor="userName">Enter a username: </label><input type="text" id="userName" placeholder="Enter a username..." onChange={onChange} />
+                <label htmlFor="password">Enter a password: </label><input type="password" id="password" placeholder="Enter password..." onChange={onChange} />
                 <button type="submit">Submit</button>
             </form>
         </div>)

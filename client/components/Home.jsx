@@ -20,7 +20,8 @@ const Home = () => {
     }, [socket]);
 
 
-    const handleUserNameSubmit = (userName) => {
+    const handleUserNameSubmit = (userName, password) => {
+        console.log(password);
         joinRoom(userName)
     }
 

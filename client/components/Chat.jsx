@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSocket } from "../context/SocketContext";
 import FileUploader from "./FileUploader";
+
 const Chat = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -113,26 +114,27 @@ const Chat = () => {
     const executeCommands = async (command) => {
         console.log("command", command);
         if (command === "-h") {
-            await helpCommand();
+            helpCommand();
+            handleReset();
             return;
         }
 
         if (command.includes("/createchannel")) {
             createChannel();
+            handleReset();
             return;
         }
         if (command.includes("/deletechannel")) {
             deleteChannel();
+            handleReset();
             return;
         }
         if (command === "/addfile") {
-            console.log("file added")
-            setCommand(currentMessage);
+            console.log("file added", currentMessage)
             setShowFileUploader(true);
             return;
         }
-
-        console.log("No command");
+        console.log("Not a valid command");
 
     }
     /**
@@ -148,7 +150,6 @@ const Chat = () => {
         const command = currentMessage.toLowerCase();
         if (command[0] === '/' || command[0] === "-") {
             executeCommands(command);
-            handleReset();
             return;
         }
 
@@ -181,6 +182,7 @@ const Chat = () => {
         setCurrentMessage("");
         setShowFileUploader(false);
     }
+
     return (
         <div>
             <div className="chat-header">
@@ -197,9 +199,9 @@ const Chat = () => {
                 {helpMessage && helpMessage.map((message, idx) => {
                     return <p key={idx}>{message}</p>
                 })}
+                {showFileUploader && <FileUploader message={currentMessage} handleReset={handleReset} />}
 
 
-                {showFileUploader && <FileUploader currentMessage={command} handleReset={handleReset} />}
             </div>
             <div className="chat-footer">
                 <input type="text" onChange={handleChange} onKeyDown={(event) => event.key === "Enter" && sendMessage()} value={currentMessage} />
