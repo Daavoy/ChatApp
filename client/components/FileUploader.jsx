@@ -1,22 +1,22 @@
 import React, { useRef, useEffect } from 'react';
 
-const FileUploader = ({ currentMessage, handleReset }) => {
+const FileUploader = ({ message, handleReset }) => {
     const fileInputRef = useRef(null);
 
     console.log("File uploader opened")
     const openFileInput = () => {
-        console.log('Opening file input'); // Debug log
+        console.log('Opening file input');
         if (fileInputRef.current) {
-            fileInputRef.current.click(); // Programmatically trigger file input click
+            fileInputRef.current.click();
         }
     };
 
     useEffect(() => {
-        console.log("curr", currentMessage)
+        console.log("curr", message)
         window.openFileInput = openFileInput
         const handleKeyDown = (event) => {
             console.log(event.key)
-            if (event.key === "Enter" && currentMessage === "/addfile") {
+            if (event.key === "Enter" && message === "/addfile") {
                 openFileInput();
                 handleReset();
             }
@@ -27,7 +27,7 @@ const FileUploader = ({ currentMessage, handleReset }) => {
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
         };
-    }, [currentMessage]);
+    }, [message]);
 
     return (
         <div>
