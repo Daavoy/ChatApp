@@ -2,12 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import path from "path";
 import dotenv from "dotenv";
-import { Server } from 'socket.io'; // Import the named export 'Server' from 'socket.io'
+import jwt from 'jsonwebtoken';
+import { Server } from 'socket.io';
 import { createServer } from 'http';
 import { fileURLToPath } from 'url';
 import { MongoClient, ServerApiVersion } from 'mongodb';
-import { CLIENT_RENEG_WINDOW } from 'tls';
-
+import mongoose from 'mongoose';
+import { User } from './models/User.js';
 const app = express();
 app.use(express.json())
 app.use(cors({
@@ -32,25 +33,33 @@ const client = new MongoClient(mongoURI, {
     }
 });
 
+
+
 const db = client.db("chatapplication");
 const users = db.collection("users");
 const channels = db.collection("channels");
 const commands = db.collection("commands");
 
-// Connect to MongoDB and start server
-client.connect()
-    .then(() => {
-        console.log("Connected to MongoDB");
 
-        // Express routes and socket.io handling inside the connection callback
-        configureApp();
-    })
-    .catch(err => {
-        console.error("Error connecting to MongoDB:", err);
-    });
+
 
 function configureApp() {
     // Express routes
+    app.post("/login", async (req, res) => {
+        const { email, password } = req.body;
+        try {
+            const user = await User.findOne({ email, password });
+            if (user) {
+                const token = jwt.sign({ id: user._id, name: user.name }, "your_secret_key", { expiresIn: "1h" });
+                res.json({ token });
+            } else {
+                res.status(401).json({ message: "Invalid credentials" })
+            }
+        } catch (err) {
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    });
+
     app.post('/users', async (req, res) => {
         const { userName } = req.body;
         try {
@@ -153,9 +162,13 @@ function configureApp() {
             console.log(`Client disconnected: ${socket.id}, reason: ${reason}`);
         });
     });
-
-    // Start server
+}
+mongoose.connect(mongoURI).then(() => {
+    console.log("Connected to mongoDB")
     server.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
+        configureApp();
     });
-}
+}).catch((err) => {
+    console.log(err);
+});
