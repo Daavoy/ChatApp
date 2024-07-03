@@ -8,5 +8,4 @@ const UserSchema = new Schema({
     messages: Array
 })
 
-const User = mongoose.model("User", UserSchema);
-export { UserSchema, User };
+module.exports = mongoose.model("User", UserSchema);
