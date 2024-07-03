@@ -3,6 +3,7 @@ import cors from 'cors';
 import path from "path";
 import dotenv from "dotenv";
 import jwt from 'jsonwebtoken';
+
 import { Server } from 'socket.io';
 import { createServer } from 'http';
 import { fileURLToPath } from 'url';
@@ -10,6 +11,7 @@ import { MongoClient, ServerApiVersion } from 'mongodb';
 import mongoose from 'mongoose';
 import { User } from "./models/User.js"
 import { userRoute } from './routes/userRoute.js';
+import { authenticationRoute } from './routes/authenticationRoute.js';
 const app = express();
 app.use(express.json())
 app.use(cors({
@@ -44,22 +46,8 @@ const commands = db.collection("commands");
 
 
 function configureApp() {
-    // Express routes
-    app.post("/login", async (req, res) => {
-        const { email, password } = req.body;
-        try {
-            const user = await User.findOne({ email, password });
-            if (user) {
-                const token = jwt.sign({ id: user._id, name: user.name }, "your_secret_key", { expiresIn: "1h" });
-                res.json({ token });
-            } else {
-                res.status(401).json({ message: "Invalid credentials" })
-            }
-        } catch (err) {
-            res.status(500).json({ message: 'Internal server error' });
-        }
-    });
 
+    app.use('/api/auth', authenticationRoute);
     app.use('/api/users', userRoute);
     // const { userName } = req.body;
     // try {
