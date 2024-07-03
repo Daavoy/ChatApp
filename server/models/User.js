@@ -3,9 +3,20 @@ import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const UserSchema = new Schema({
-    name: String,
-    password: String,
-    messages: Array
+    name: {
+        type: String,
+        required: true,
+        maxLength: 64
+    }
+    ,
+    password: {
+        type: String,
+        required: true,
+        maxLength: 64,
+        minLength: 8
+    },
+    messages: [mongoose.SchemaTypes.ObjectId]
 })
 
-module.exports = mongoose.model("User", UserSchema);
+const User = mongoose.model("User", UserSchema);
+export { User };
