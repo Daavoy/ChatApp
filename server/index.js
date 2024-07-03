@@ -8,7 +8,8 @@ import { createServer } from 'http';
 import { fileURLToPath } from 'url';
 import { MongoClient, ServerApiVersion } from 'mongodb';
 import mongoose from 'mongoose';
-import { User } from './models/User.js';
+import { User } from "./models/User.js"
+import { userRoute } from './routes/userRoute.js';
 const app = express();
 app.use(express.json())
 app.use(cors({
@@ -42,7 +43,6 @@ const commands = db.collection("commands");
 
 
 
-
 function configureApp() {
     // Express routes
     app.post("/login", async (req, res) => {
@@ -60,20 +60,19 @@ function configureApp() {
         }
     });
 
-    app.post('/users', async (req, res) => {
-        const { userName } = req.body;
-        try {
-            const existingUser = await users.findOne({ username: userName });
-            if (existingUser) {
-                return res.status(400).json({ message: "User already exists" });
-            }
-            const result = await users.insertOne({ username: userName, messages: [] });
-            res.status(201).json({ message: "User created successfully", userId: result.insertedId });
-        } catch (error) {
-            console.error("Error creating user:", error);
-            res.status(500).json({ message: "Server error" });
-        }
-    });
+    app.use('/api/users', userRoute);
+    // const { userName } = req.body;
+    // try {
+    //     const existingUser = await users.findOne({ username: userName });
+    //     if (existingUser) {
+    //         return res.status(400).json({ message: "User already exists" });
+    //     }
+    //     const result = await users.insertOne({ username: userName, messages: [] });
+    //     res.status(201).json({ message: "User created successfully", userId: result.insertedId });
+    // } catch (error) {
+    //     console.error("Error creating user:", error);
+    //     res.status(500).json({ message: "Server error" });
+    // }
 
     app.get('/commands', async (req, res) => {
         try {
