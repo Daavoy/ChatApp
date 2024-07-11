@@ -29,17 +29,12 @@ const mongoURI = process.env.MONGO_URI;
 const PORT = process.env.PORT || 5000;
 
 const client = new MongoClient(mongoURI, {
-    serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-    }
+
 });
 
 
 
 const db = client.db("chatapplication");
-const users = db.collection("users");
 const channels = db.collection("channels");
 const commands = db.collection("commands");
 
@@ -49,18 +44,6 @@ function configureApp() {
 
     app.use('/api/auth', authenticationRoute);
     app.use('/api/users', userRoute);
-    // const { userName } = req.body;
-    // try {
-    //     const existingUser = await users.findOne({ username: userName });
-    //     if (existingUser) {
-    //         return res.status(400).json({ message: "User already exists" });
-    //     }
-    //     const result = await users.insertOne({ username: userName, messages: [] });
-    //     res.status(201).json({ message: "User created successfully", userId: result.insertedId });
-    // } catch (error) {
-    //     console.error("Error creating user:", error);
-    //     res.status(500).json({ message: "Server error" });
-    // }
 
     app.get('/commands', async (req, res) => {
         try {
@@ -86,23 +69,23 @@ function configureApp() {
         console.log('Client connected:', socket.id);
         socket.join('main-room');
 
-        socket.on("join_room", async (data, callback) => {
-            try {
-                const existingUser = await users.findOne({ username: data });
-                if (existingUser) {
-                    callback({ success: false, message: "User already exists" });
-                    return;
-                }
-                const result = await users.insertOne({ username: data, messages: [] });
-                socket.join(data);
-                console.log(`User with ID: ${socket.id} joined ${data}`);
-                console.log(`User with ID: ${result.insertedId} added to collection`);
-                callback({ success: true, message: "User joined successfully" });
-            } catch (err) {
-                console.error("Error storing user:", err);
-                callback({ success: false, message: "Server error" });
-            }
-        });
+        // socket.on("join_room", async (data, callback) => {
+        //     try {
+        //         const existingUser = await users.findOne({ username: data });
+        //         if (existingUser) {
+        //             callback({ success: false, message: "User already exists" });
+        //             return;
+        //         }
+        //         const result = await users.insertOne({ username: data.username, messages: [] });
+        //         socket.join(data);
+        //         console.log(`User with ID: ${socket.id} joined ${data}`);
+        //         console.log(`User with ID: ${result.insertedId} added to collection`);
+        //         callback({ success: true, message: "User joined successfully" });
+        //     } catch (err) {
+        //         console.error("Error storing user:", err);
+        //         callback({ success: false, message: "Server error" });
+        //     }
+        // });
 
         socket.on('create_channel', async (data, callback) => {
             try {

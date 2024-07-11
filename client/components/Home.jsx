@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useSocket } from '../context/SocketContext'
 
 const Home = () => {
-    const location = useLocation()
+    const location = useLocation();
     const navigate = useNavigate();
     const [connectionMessage, setConnectionMessage] = useState("fetching...");
     const socket = useSocket();
@@ -20,10 +20,32 @@ const Home = () => {
     }, [socket]);
 
 
-    const handleUserNameSubmit = (userName, password) => {
-        console.log(password);
-        joinRoom(userName)
-    }
+    const handleUserNameSubmit = async (username, password) => {
+
+
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: username,
+                    password: password,
+                }),
+            });
+
+            if (!response.ok) {
+                const errormessage = await response.json();
+                throw new Error(`HTTP error! status: ${response.status}, message: ${errormessage.error}`);
+            }
+
+            const data = await response.json();
+            console.log('Response data:', data);
+        } catch (error) {
+            console.error('Error during fetch:', error);
+        }
+
+        joinRoom(username);
+    };
 
     const joinRoom = (userName) => {
 

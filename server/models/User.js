@@ -21,9 +21,10 @@ const UserSchema = new Schema({
     },
     dateCreated: {
         type: Date,
-        default: Date.now
+        immutable: true,
+        default: () => Date.now()
     },
-    messages: [mongoose.SchemaTypes.ObjectId]
+    messages: { type: [mongoose.SchemaTypes.ObjectId], default: [] }
 })
 
 const User = mongoose.model("User", UserSchema);

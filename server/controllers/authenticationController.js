@@ -1,24 +1,29 @@
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken';
 import { User } from "../models/User.js";
-import express from "express";
 
 const login = async (req, res) => {
-    const { username, password } = req.body;
     try {
+        const { username, password } = req.body;
         const user = await User.findOne({ username: username });
-        if (!user) {
-            res.status(401).json({ message: "Invalid credentials" })
+        if (!username || !password) {
+            return res.status(400).json({ error: "Username and password are required" });
         }
+        if (!user) {
+            return res.status(401).json({ message: "Invalid credentials" })
+        }
+
+
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) {
             return res.status(401).json({ error: "Invalid credentials" });
         }
 
         const token = jwt.sign({ username: username }, 'secret');
-        res.status(200).json({ token })
+        return res.status(200).json({ token })
     } catch (err) {
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: 'Internal server error' + err.message });
+        return;
     };
 }
 
@@ -26,9 +31,13 @@ const register = async (req, res) => {
     try {
         const password = req.body.password;
         const username = req.body.username;
-        const existingUser = await User.findOne({ userName: username });
+        if (!username || !password) {
+            return res.status(400).json({ error: "Username and password are required" });
+        }
+        const existingUser = await User.findOne({ username: username });
+        console.log(existingUser)
         if (existingUser) {
-            res.status(400).json({ error: "User already exists" });
+            return res.status(400).json({ error: "User already exists" });
         }
 
         const saltRounds = 10;
@@ -38,8 +47,11 @@ const register = async (req, res) => {
             username: username,
             password: hashedPassword,
         })
+
+        console.log("new user: ", newUser);
         await newUser.save();
-        res.status(201).json({ message: "User registered successfully! " });
+        console.log(newUser)
+        return res.status(201).json({ message: "User registered successfully! " });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
