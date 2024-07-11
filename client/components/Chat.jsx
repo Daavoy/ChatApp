@@ -16,7 +16,7 @@ const Chat = () => {
     const [command, setCommand] = useState("");
     const [helpMessage, setHelpMessage] = useState("");
     const [messageList, setMessageList] = useState([]);
-    const { userName } = location.state || {}; // Access the state passed from Home
+    const { username } = location.state || {}; // Access the state passed from Home
 
     /**
      * Will create a channel with the specified name if the command is valid, and there doesn't already exist a channel with the same name.
@@ -154,7 +154,7 @@ const Chat = () => {
         }
 
         const messageData = {
-            sender: userName,
+            sender: username,
             message: currentMessage,
             time: new Date(Date.now()).getHours() + ":" + new Date(Date.now()).getMinutes(),
         }
