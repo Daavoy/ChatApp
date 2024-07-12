@@ -45,18 +45,16 @@ const Home = () => {
 
             const data = await response.json();
             console.log('Response data:', data);
+            joinRoom(username);
+            navigate("/chat", { state: { username } });
         } catch (error) {
             console.error('Error during fetch:', error);
         }
 
-        joinRoom(username);
-        navigate("/chat", { state: { username } });
     };
     const handleLogin = async (username, password) => {
-
-
         try {
-            const response = await fetch('http://localhost:5000/api/auth/register', {
+            const response = await fetch('http://localhost:5000/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -72,12 +70,10 @@ const Home = () => {
 
             const data = await response.json();
             console.log('Response data:', data);
+            joinRoom(username);
         } catch (error) {
             console.error('Error during fetch:', error);
         }
-
-        joinRoom(username);
-        navigate("/chat", { state: { username } });
     };
 
     const joinRoom = (userName) => {
