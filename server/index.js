@@ -3,6 +3,7 @@ import cors from 'cors';
 import path from "path";
 import dotenv from "dotenv";
 import jwt from 'jsonwebtoken';
+import cookieParser from "cookie-parser"
 
 import { Server } from 'socket.io';
 import { createServer } from 'http';
@@ -14,6 +15,7 @@ import { userRoute } from './routes/userRoute.js';
 import { authenticationRoute } from './routes/authenticationRoute.js';
 const app = express();
 app.use(express.json())
+app.use(cookieParser())
 app.use(cors({
     origin: "http://localhost:5173", // Adjust the origin to match your client's actual origin
     credentials: true,
@@ -26,12 +28,12 @@ const envPath = path.resolve(__dirname, "../.env");
 dotenv.config({ path: envPath });
 
 const mongoURI = process.env.MONGO_URI;
+
 const PORT = process.env.PORT || 5000;
 
 const client = new MongoClient(mongoURI, {
 
 });
-
 
 
 const db = client.db("chatapplication");

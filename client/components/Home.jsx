@@ -32,6 +32,7 @@ const Home = () => {
             const response = await fetch('http://localhost:5000/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify({
                     username: username,
                     password: password,
@@ -44,7 +45,6 @@ const Home = () => {
             }
 
             const data = await response.json();
-            console.log('Response data:', data);
             joinRoom(username);
             navigate("/chat", { state: { username } });
         } catch (error) {
@@ -56,6 +56,7 @@ const Home = () => {
         try {
             const response = await fetch('http://localhost:5000/api/auth/login', {
                 method: 'POST',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     username: username,
@@ -69,8 +70,8 @@ const Home = () => {
             }
 
             const data = await response.json();
-            console.log('Response data:', data);
             joinRoom(username);
+            navigate("/chat", { state: { username } });
         } catch (error) {
             console.error('Error during fetch:', error);
         }
