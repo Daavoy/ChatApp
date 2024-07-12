@@ -24,6 +24,13 @@ const UserSchema = new Schema({
         immutable: true,
         default: () => Date.now()
     },
+    tokens: [{
+        token: {
+            type: String,
+            required: true,
+        },
+    },
+    ],
     messages: { type: [mongoose.SchemaTypes.ObjectId], default: [] }
 })
 
