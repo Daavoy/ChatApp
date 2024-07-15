@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSocket } from "../context/SocketContext";
 import FileUploader from "./FileUploader";
+import axios from "axios";
 
 const Chat = () => {
     const location = useLocation();
@@ -52,6 +53,55 @@ const Chat = () => {
             console.error("Error when creating new channels", error);
         }
     };
+    const logOut = async () => {
+        console.log("logging out");
+        try {
+            const response = await fetch("http://localhost:5000/api/auth/logout", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include" // Important for including cookies
+            });
+            if (!response.ok) {
+                throw new Error("Not ok");
+            }
+            const data = await response.jsonc();
+            console.log(data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const displayUsers = async () => {
+        try {
+            const response = await fetch("http://localhost:5000/api/users", {
+                method: "GET",
+                credentials: "include",
+                headers: { 'Content-Type': 'application/json', "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2OTE3ZmRiMmE5ZjM0NzE0MTEyNWZiNyIsInVzZXJuYW1lIjoidGVzdCIsInJvbGVzIjpbInVzZXIiXSwiaWF0IjoxNzIxMDQ0ODA0LCJleHAiOjE3MjEwNDU3MDR9.6Nmesvcmb1RKstjE2Hux2uMO8V2J_wc50X_BEgV2KdY" }
+            })
+            if (!response.ok) {
+                const refresh = await fetch("http://localhost:5000/api/auth/refresh", {
+                    method: "GET",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                })
+                console.log(refresh);
+                if (refresh.ok) {
+                    const refData = await refresh.json();
+                    console.log(refData)
+                    return;
+                }
+
+            }
+            const data = await response.json();
+            console.log(data);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+
     /**
      * This method fetches all available commands from the backend and renders the results.
      * @returns {void}
@@ -115,6 +165,16 @@ const Chat = () => {
         console.log("command", command);
         if (command === "-h") {
             helpCommand();
+            handleReset();
+            return;
+        }
+        if (command.includes("/users")) {
+            displayUsers();
+            handleReset();
+            return;
+        }
+        if (command.includes("/logout")) {
+            logOut();
             handleReset();
             return;
         }

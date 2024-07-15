@@ -70,6 +70,7 @@ const Home = () => {
             }
 
             const data = await response.json();
+            console.log(data);
             joinRoom(username);
             navigate("/chat", { state: { username } });
         } catch (error) {
